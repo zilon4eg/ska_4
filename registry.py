@@ -1,6 +1,7 @@
 import os
 import PySimpleGUI as sg
 import xls
+import PySimpleGUIQt
 
 
 def light_files_in_dir(list_files):
@@ -15,11 +16,54 @@ def miss_files(list1, list2):
     return miss_list
 
 
+def font_size():
+    fontSize = 12
+    layout = [
+        [sg.Spin([sz for sz in range(10, 21)], font=('Helvetica 20'), initial_value=fontSize, change_submits=True,
+                       key='spin'),
+               sg.Slider(range=(10, 20), orientation='h', size=(10, 25),
+                         change_submits=True, key='slider', font=('Helvetica 20')),
+               sg.Text("Ab", size=(2, 1), font="Helvetica " + str(fontSize), key='text')],
+        [
+            sg.Submit(button_text='Ok'),
+            sg.Cancel(button_text='Cancel')
+        ]
+    ]
+
+    sz = fontSize
+    window = sg.Window("Font size selector", layout, grab_anywhere=False)
+    # Event Loop
+    while True:
+        event, values = window.read()
+        if event in (sg.WIN_CLOSED, 'Cancel'):
+            return
+        sz_spin = int(values['spin'])
+        sz_slider = int(values['slider'])
+        sz = sz_spin if sz_spin != fontSize else sz_slider
+        if sz != fontSize:
+            fontSize = sz
+            font = "Helvetica " + str(fontSize)
+            window['text'].update(font=font)
+            window['slider'].update(sz)
+            window['spin'].update(sz)
+
+
 if __name__ == '__main__':
     base_registry_path = r'\\fs\SHARE\Documents\OTDEL-SECRETARY\Регистрация документов\Реестры'
     base_scan_path = r'\\fs\SHARE\Documents\OTDEL-SECRETARY\Регистрация документов'
 
+    # ------ Menu Definition ------ #
+    menu_def = [
+        ['File', ['Exit']],
+        ['Settings', ['Font', 'Font size', 'Hyperlink color']],
+        ['Help', 'About']
+    ]
+    # ----------------------------- #
+
     layout = [
+        [
+            sg.Menu(menu_def, tearoff=False)
+        ],
         [
             sg.Text('Путь к файлу реестра: ', size=(17, 1)),
             sg.InputText(key='file', size=(58, 1)),
@@ -53,7 +97,16 @@ if __name__ == '__main__':
         if event in (None, 'Exit', 'Cancel'):
             break
 
-        if event == 'Start':
+        elif event == 'Font':
+            pass
+
+        elif event == 'Font size':
+            font_size()
+
+        elif event == 'Hyperlink color':
+            pass
+
+        elif event == 'Start':
             registry_path = values['file']
             ws_name = values['sheet']
             dir_scan = values['folder']
