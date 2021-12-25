@@ -18,7 +18,7 @@ class GUI:
         settings = self.load_settings()
         for setting in new_settings:
             settings.update({setting: new_settings[setting]})
-            print(settings)
+            # print(settings)
         with open(self.config_path, 'w') as file:
             for line in settings:
                 file.writelines(f'{line}={settings[line]}\n')
@@ -27,7 +27,7 @@ class GUI:
         # ------ Menu Definition ------ #
         menu_def = [
             ['File', ['Exit']],
-            ['Settings', ['Font', 'Font size', 'Hyperlink color']],
+            ['Settings', ['Font', 'Hyperlink']],
             ['Help', 'About'],
         ]
         # ----------------------------- #
@@ -60,14 +60,14 @@ class GUI:
 
         return PySimpleGUI.Window('Hyperlinks creator', layout)
 
-    def font_size_menu(self):
+    def font_menu(self):
         settings = self.load_settings()
         font_list = settings['font_list'].split(',')
         font_name = settings['font_name']
         font_size = int(settings['font_size'])
 
         layout = [
-            [PySimpleGUI.Combo(font_list, default_value=font_name)],
+            [PySimpleGUI.Combo(font_list, default_value=font_name, key='drop-down')],
             [PySimpleGUI.Spin([sz for sz in range(10, 21)], font=('Helvetica 20'), initial_value=font_size,
                               change_submits=True,
                               key='spin'),
@@ -80,7 +80,7 @@ class GUI:
             ]
         ]
 
-        sz = font_size
+        # sz = font_size
         window = PySimpleGUI.Window("Font size selector", layout, grab_anywhere=False)
         # Event Loop
         while True:
@@ -97,11 +97,36 @@ class GUI:
                 window['text'].update(font=font)
                 window['slider'].update(sz)
                 window['spin'].update(sz)
+
             if event in 'Ok':
-                self.save_settings({'font_size': font_size})
+                self.save_settings({'font_size': font_size, 'font_name': values['drop-down']})
                 window.close()
                 break
 
+    def color_chooser_menu(self):
+        layout = [
+            [PySimpleGUI.Text('Код цвета:'), PySimpleGUI.Input(key='color', readonly=True, size=(7, 1)), PySimpleGUI.ColorChooserButton(button_text='Choose color', key='color')],
+            [
+                PySimpleGUI.Submit(button_text='Ok'),
+                PySimpleGUI.Cancel(button_text='Cancel'),
+            ],
+        ]
+
+        window = PySimpleGUI.Window("Font size selector", layout, grab_anywhere=False)
+        # Event Loop
+        while True:
+            event, values = window.read()
+            if event in (PySimpleGUI.WIN_CLOSED, 'Cancel'):
+                window.close()
+                break
+
+            if event in 'Ok':
+
+                # window.close()
+                # break
+                pass
+
+        return
 
 if __name__ == '__main__':
     gg = GUI()
@@ -115,15 +140,12 @@ if __name__ == '__main__':
             break
 
         elif event in 'Font':
-            print('Font')
+            window_main.hide()
+            gg.font_menu()
+            window_main.UnHide()
 
-        elif event in 'Font size':
-            # window_main.hide()
-            gg.font_size_menu()
-            # window_main.UnHide()
-
-        elif event == 'Hyperlink color':
-            pass
+        elif event == 'Hyperlink':
+            gg.color_chooser_menu()
 
         elif event == 'Start':
             print('Start')
