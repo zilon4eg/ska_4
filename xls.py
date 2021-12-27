@@ -1,11 +1,13 @@
-import os
 import openpyxl
 from openpyxl.styles import Font
 
 
 class Excel:
-    def __init__(self, registry_path, dir_scan, ws_name):
-        self.font = Font(name='Times New Roman', size=14, underline='single', color='0059b3')
+    def __init__(self, registry_path, dir_scan, ws_name, settings):
+        font_size = int(settings['font_size'])
+        font_name = settings['font_name']
+        hyperlink_color = settings['hyperlink_color']
+        self.font = Font(name=font_name, size=font_size, underline='single', color=hyperlink_color)
         self.registry_path = registry_path
         self.dir_scan = dir_scan
         self.ws_name = ws_name
@@ -32,11 +34,4 @@ class Excel:
 
 
 if __name__ == '__main__':
-    registry_path = r'C:\Users\suhorukov.iv\Desktop\Реестр исходящих 2020-2021.xlsx'
-    ws_name = r'2021'
-    dir_scan = r'\\fs\SHARE\Documents\OTDEL-SECRETARY\Регистрация документов\ИСХОДЯЩИЕ 2021'
-    xxl = Excel(registry_path, dir_scan, ws_name)
-    files_a = xxl.get_column()
-    # print(files_a)
-    files_a_sort = list(map(lambda x: x.replace(r'/', r'-').strip().split()[0], files_a))
-    # print(files_a_sort)
+    pass

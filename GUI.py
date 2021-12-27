@@ -1,14 +1,22 @@
 import os
 import PySimpleGUI
+import registry
 
 
 class GUI:
     def __init__(self):
-        self.config_path = f'{os.path.abspath(os.curdir)}\\config.ini'
+        """
+        Получить текущую директорию, где запущен скрипт
+        dir = os.path.abspath(os.curdir)
+        Получить текущую директорию, где расположен скрипт
+        os.path.abspath(__file__)
+        """
+        position = os.path.abspath(__file__).rfind('\\')
+        self.config_path = f'{os.path.abspath(__file__)[:position]}\\config.ini'
 
     def load_settings(self):
         settings = dict()
-        with open(self.config_path, 'r') as file:
+        with open(self.config_path, 'r', encoding='cp1251') as file:
             for line in file:
                 line = line.strip().split('=')
                 settings.update({line[0]: line[1]})
@@ -19,16 +27,17 @@ class GUI:
         for setting in new_settings:
             settings.update({setting: new_settings[setting]})
             # print(settings)
-        with open(self.config_path, 'w') as file:
+        with open(self.config_path, 'w', encoding='cp1251') as file:
             for line in settings:
                 file.writelines(f'{line}={settings[line]}\n')
 
     def main_menu(self):
+        settings = self.load_settings()
         # ------ Menu Definition ------ #
         menu_def = [
             ['File', ['Exit']],
             ['Settings', ['Font', 'Hyperlink']],
-            ['Help', 'About'],
+            # ['Help', 'About'],
         ]
         # ----------------------------- #
         layout = [
@@ -38,7 +47,7 @@ class GUI:
             [
                 PySimpleGUI.Text('Путь к файлу реестра: ', size=(17, 1)),
                 PySimpleGUI.InputText(key='file', size=(58, 1)),
-                PySimpleGUI.FileBrowse(target='file', size=(7, 1))
+                PySimpleGUI.FileBrowse(target='file', initial_folder=settings['base_registry_path'], size=(7, 1))
             ],
             [
                 PySimpleGUI.Text('Название листа в книге Excel: ', size=(23, 1)),
@@ -47,7 +56,7 @@ class GUI:
             [
                 PySimpleGUI.Text('Путь к папке со сканами: ', size=(19, 1)),
                 PySimpleGUI.InputText(key='folder', size=(56, 1)),
-                PySimpleGUI.FolderBrowse(target='folder', size=(7, 1))
+                PySimpleGUI.FolderBrowse(target='folder', initial_folder=settings['base_scan_path'], size=(7, 1))
             ],
             [
                 PySimpleGUI.Output(size=(88, 20))
@@ -58,10 +67,46 @@ class GUI:
             ]
         ]
 
-        return PySimpleGUI.Window('Hyperlinks creator', layout)
+        window_main = PySimpleGUI.Window('Hyperlinks creator', layout)
 
-    def font_menu(self):
-        settings = self.load_settings()
+        while True:  # The Event Loop
+            settings = self.load_settings()
+            event, values = window_main.read()
+            # print(event, values) #debug
+
+            if event in (None, 'Exit', 'Cancel'):
+                break
+
+            elif event in 'Font':
+                window_main.hide()
+                self.font_menu(settings)
+                window_main.UnHide()
+
+            elif event in 'Hyperlink':
+                window_main.hide()
+                self.color_chooser_menu()
+                window_main.UnHide()
+
+            elif event in 'Start':
+                base_registry_path = values['file']  # r'\\fs\SHARE\Documents\OTDEL-SECRETARY\Регистрация документов\Реестры'
+                base_scan_path = values['folder']  # r'\\fs\SHARE\Documents\OTDEL-SECRETARY\Регистрация документов'
+                if base_registry_path and base_scan_path:
+                    base_registry_path = base_registry_path[:base_registry_path.rfind('/')]
+                    self.save_settings({'base_registry_path': base_registry_path, 'base_scan_path': base_scan_path})
+
+                registry_path = values['file']
+                ws_name = values['sheet']
+                dir_scan = values['folder']
+                if os.path.exists(registry_path) and os.path.exists(dir_scan):
+                    print(f'Доступность путей проверена.')
+                else:
+                    print(f'Один из путей недоступен или не существует.')
+                    break
+
+                registry.body(registry_path, dir_scan, ws_name, settings)
+
+    def font_menu(self, settings):
+        # settings = self.load_settings()
         font_list = settings['font_list'].split(',')
         font_name = settings['font_name']
         font_size = int(settings['font_size'])
@@ -121,31 +166,13 @@ class GUI:
                 break
 
             if event in 'Ok':
+                hyperlink_color = values['color'][1:]
+                self.save_settings({'hyperlink_color': hyperlink_color})
+                window.close()
+                break
 
-                # window.close()
-                # break
-                pass
-
-        return
 
 if __name__ == '__main__':
     gg = GUI()
-    window_main = gg.main_menu()
-
-    while True:                             # The Event Loop
-        event, values = window_main.read()
-        # print(event, values) #debug
-
-        if event in (None, 'Exit', 'Cancel'):
-            break
-
-        elif event in 'Font':
-            window_main.hide()
-            gg.font_menu()
-            window_main.UnHide()
-
-        elif event == 'Hyperlink':
-            gg.color_chooser_menu()
-
-        elif event == 'Start':
-            print('Start')
+    gg.main_menu()
+    pass
