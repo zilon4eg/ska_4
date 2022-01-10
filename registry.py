@@ -1,4 +1,4 @@
-from xls import Excel
+from xls_w import Excel
 import os
 
 
@@ -38,7 +38,7 @@ def body(registry_path, dir_scan, ws_name, settings):
     for miss in miss_list:
         print(f'Не найдено сопоставление регистрационному номеру {miss} среди файлов.')
 
-    print('Формирование гиперссылок.')
+    print('Формирование гиперссылок...')
     for position, file_a in enumerate(files_a, 3):
         file_a_clear = file_a.replace(r'/', r'-').strip().split()[0]
 
@@ -50,11 +50,12 @@ def body(registry_path, dir_scan, ws_name, settings):
                 if file_dir_clear == file_a_clear:
                     name = f'{file_pref.capitalize()}{file_a_clear}{file_type}'
                     link_name = f'{file_pref.upper()}{file_a_clear}{file_type}'
-                    xxl.create_hyperlinks(name, link_name, position)
+                    if not xxl.check_hyperlink(name, link_name, position):
+                        xxl.create_hyperlinks(name, link_name, position)
                     # print(position, name, link_name)
     print('Гиперссылки сформированы.')
-    xxl.save()
-    print(f'Файл {registry_path} сохранен')
+    # xxl.save()
+    # print(f'Файл {registry_path} сохранен')
     print('Complete...' + '\n' * 1)
 
 

@@ -166,7 +166,7 @@ class GUI:
                 break
 
             if event in 'Ok':
-                hyperlink_color = values['color'][1:]
+                hyperlink_color = values['color']
                 self.save_settings({'hyperlink_color': hyperlink_color})
                 window.close()
                 break
