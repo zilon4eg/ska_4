@@ -1,6 +1,6 @@
 from xls_w import Excel
 import os
-import time
+from GUI import GUI
 
 
 def light_files_in_dir(list_files):
@@ -41,6 +41,7 @@ def body(registry_path, dir_scan, ws_name, settings):
 
     print('Формирование гиперссылок...')
 
+    # GUI.progress_bar_menu(len(files_a), xxl, files_a, files_dir, file_pref)
     for position, file_a in enumerate(files_a, 3):
         file_a_clear = file_a.replace(r'/', r'-').strip().split()[0]
 
@@ -54,7 +55,7 @@ def body(registry_path, dir_scan, ws_name, settings):
                     link_name = f'{file_pref.upper()}{file_a_clear}{file_type}'
                     if not xxl.check_hyperlink(name, link_name, position):
                         xxl.create_hyperlinks(name, link_name, position)
-                    # print(position, name, link_name)
+
     print('Гиперссылки сформированы.')
     # xxl.save()
     # print(f'Файл {registry_path} сохранен')

@@ -53,9 +53,15 @@ class Excel:
         except:
             hyperlink = None
 
+        # print(name, self.ws[f'H{position}'].value)
+        # print(f'{self.dir_scan}\\{link_name}'.replace('\\', '/'), hyperlink.replace('\\', '/'))
+        # print(self.font_name, self.ws[f'H{position}'].font.name)
+        # print(self.font_size, self.ws[f'H{position}'].font.size)
+        # print(Excel.hex_to_rgb(self.hyperlink_color), self.ws[f'H{position}'].font.color)
+
         if (
                 name == self.ws[f'H{position}'].value
-                and f'{self.dir_scan}\\{link_name}' == hyperlink
+                and f'{self.dir_scan}\\{link_name}'.replace('\\', '/') == hyperlink.replace('\\', '/')
                 and self.font_name == self.ws[f'H{position}'].font.name
                 and self.font_size == self.ws[f'H{position}'].font.size
                 and Excel.hex_to_rgb(self.hyperlink_color) == self.ws[f'H{position}'].font.color

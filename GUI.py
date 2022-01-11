@@ -171,29 +171,52 @@ class GUI:
                 window.close()
                 break
 
-    def progress_bar_menu(self, size):
+    @staticmethod
+    def progress_bar_menu(size, xxl, files_a, files_dir, file_pref):
         # layout the window
-        layout = [[PySimpleGUI.Text('A custom progress meter')],
+        layout = [[PySimpleGUI.Text('Working...')],
                   [PySimpleGUI.ProgressBar(size, orientation='h', size=(20, 20), key='progressbar')],
                   [PySimpleGUI.Cancel()]]
 
         # create the window`
-        window = PySimpleGUI.Window('Custom Progress Meter', layout)
+        window = PySimpleGUI.Window('Create hyperlinks', layout)
         progress_bar = window['progressbar']
         # loop that would normally do something useful
-        for i in range(size):
-            # check to see if the cancel button was clicked and exit loop if clicked
-            event, values = window.read(timeout=10)
+
+
+        for position, file_a in enumerate(files_a, 3):
+            file_a_clear = file_a.replace(r'/', r'-').strip().split()[0]
+
+            for file_dir in files_dir:
+                if not file_dir.isdigit():
+                    file_type = file_dir[file_dir.rfind('.'):].lower()
+                    file_dir_clear = file_dir[file_dir.rfind('№') + 1:file_dir.rfind('.')].lower()
+
+                    if file_dir_clear == file_a_clear:
+                        name = f'{file_pref.capitalize()}{file_a_clear}{file_type}'
+                        link_name = f'{file_pref.upper()}{file_a_clear}{file_type}'
+                        if not xxl.check_hyperlink(name, link_name, position):
+                            xxl.create_hyperlinks(name, link_name, position)
+
+            event, values = window.read(timeout=1)
             if event == 'Cancel' or event == PySimpleGUI.WIN_CLOSED:
                 break
-            # update bar with loop value +1 so that bar eventually reaches the maximum
-            progress_bar.UpdateBar(i + 1)
-        # done with loop... need to destroy the window as it's still open
+            progress_bar.UpdateBar(position - 2 + 1)
+
+        # for i in range(size):
+        #     # check to see if the cancel button was clicked and exit loop if clicked
+        #     event, values = window.read(timeout=10)
+        #     if event == 'Cancel' or event == PySimpleGUI.WIN_CLOSED:
+        #         break
+        #     # update bar with loop value +1 so that bar eventually reaches the maximum
+        #     progress_bar.UpdateBar(i + 1)
+        # # done with loop... need to destroy the window as it's still open
         window.close()
         pass
 
 
 if __name__ == '__main__':
     gg = GUI()
+    # gg.progress_bar_menu(50)
     gg.main_menu()
     pass
