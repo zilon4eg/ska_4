@@ -7,12 +7,11 @@ class Excel:
         self.font_size = round(int(settings['font_size']), 1)
         self.font_name = settings['font_name']
         self.hyperlink_color = settings['hyperlink_color']
-
         self.registry_path = registry_path
         self.dir_scan = dir_scan
         self.wb = xlwings.Book(self.registry_path)
 
-        if ws_name not in [True, None, 'None']:
+        if ws_name not in [True, None, 'None', '']:
             self.ws_name = ws_name
         else:
             self.ws_name = self.wb.sheets.active.name
