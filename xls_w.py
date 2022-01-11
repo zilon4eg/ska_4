@@ -23,7 +23,7 @@ class Excel:
         print(f'Выбран лист {self.ws_name}.')
 
     def get_column(self):
-        list_column = list(str(self.ws[f'A{i}'].value)[:str(self.ws[f'A{i}'].value).rfind('.') if '.' in str(self.ws[f'A{i}'].value) else None] for i in range(3, self.ws.range('A1').end('down').row + 1))
+        list_column = list(str(self.ws[f'A{i}'].value)[:str(self.ws[f'A{i}'].value).rfind('.') if '.' in str(self.ws[f"A{i}"].value) else None] for i in range(3, self.ws.range('A1').end('down').row + 1))
         list_column = list(str(i) for i in list_column if i is not None)
         print('Получен список регистрационных номеров из столбца "А".')
         return list_column
