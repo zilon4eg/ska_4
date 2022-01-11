@@ -19,7 +19,7 @@ class Excel:
         print(f'Выбран лист {self.ws_name}.')
 
     def get_column(self):
-        list_column = list(str(self.ws[f'A{i}'].value)[:-2] for i in range(3, self.ws.range('A1').end('down').row + 1))
+        list_column = list(str(self.ws[f'A{i}'].value)[:str(self.ws[f'A{i}'].value).rfind('.') if '.' in str(self.ws[f'A{i}'].value) else None] for i in range(3, self.ws.range('A1').end('down').row + 1))
         list_column = list(str(i) for i in list_column if i is not None)
         print('Получен список регистрационных номеров из столбца "А".')
         return list_column
@@ -48,8 +48,6 @@ class Excel:
         return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
     def check_hyperlink(self, name, link_name, position):
-        result = True
-
         try:
             hyperlink = self.ws[f'H{position}'].hyperlink
         except:
@@ -71,3 +69,17 @@ class Excel:
 
 if __name__ == '__main__':
     pass
+    import os
+    from GUI import GUI
+
+
+    registry_path = r'C:/Users/suhorukov.iv/Desktop/Реестр входящих 2020-2021.xlsx'
+    dir_scan = r'//fs.corp.skaarena.ru/SHARE/Documents/OTDEL-SECRETARY/Регистрация документов/ИСХОДЯЩИЕ 2021'
+    ws_name = '2021'
+
+    # position = os.path.abspath(__file__).rfind('\\')
+    # config_path = f'{os.path.abspath(__file__)[:position]}\\config.ini'
+    gg = GUI()
+    settings = gg.load_settings()
+    xxl = Excel(registry_path, dir_scan, ws_name, settings)
+    print(xxl.get_column())

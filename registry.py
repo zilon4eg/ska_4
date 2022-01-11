@@ -1,9 +1,10 @@
 from xls_w import Excel
 import os
+import time
 
 
 def light_files_in_dir(list_files):
-    list_files = list(file for file in list_files if not file[:file.rfind('.')].isdigit())
+    list_files = list(str(file) for file in list_files if not str(file)[:str(file).rfind('.')].isdigit())
     list_files = list(map(lambda x: x[x.rfind('№') + 1:x.rfind('.')].lower(), list_files))
     return list_files
 
@@ -28,7 +29,7 @@ def body(registry_path, dir_scan, ws_name, settings):
         print('Реестр не идентифицирован.')
 
     files_a = xxl.get_column()
-    files_a_sort = list(map(lambda x: x.replace(r'/', r'-').strip().split()[0], files_a))
+    files_a_sort = list(map(lambda x: str(x).replace(r'/', r'-').strip().split()[0], files_a))
     files_dir = os.listdir(path=dir_scan)
     print(f'Получен список файов в папке {dir_scan}.')
 
@@ -39,6 +40,7 @@ def body(registry_path, dir_scan, ws_name, settings):
         print(f'Не найдено сопоставление регистрационному номеру {miss} среди файлов.')
 
     print('Формирование гиперссылок...')
+
     for position, file_a in enumerate(files_a, 3):
         file_a_clear = file_a.replace(r'/', r'-').strip().split()[0]
 

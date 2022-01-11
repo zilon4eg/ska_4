@@ -171,6 +171,27 @@ class GUI:
                 window.close()
                 break
 
+    def progress_bar_menu(self, size):
+        # layout the window
+        layout = [[PySimpleGUI.Text('A custom progress meter')],
+                  [PySimpleGUI.ProgressBar(size, orientation='h', size=(20, 20), key='progressbar')],
+                  [PySimpleGUI.Cancel()]]
+
+        # create the window`
+        window = PySimpleGUI.Window('Custom Progress Meter', layout)
+        progress_bar = window['progressbar']
+        # loop that would normally do something useful
+        for i in range(size):
+            # check to see if the cancel button was clicked and exit loop if clicked
+            event, values = window.read(timeout=10)
+            if event == 'Cancel' or event == PySimpleGUI.WIN_CLOSED:
+                break
+            # update bar with loop value +1 so that bar eventually reaches the maximum
+            progress_bar.UpdateBar(i + 1)
+        # done with loop... need to destroy the window as it's still open
+        window.close()
+        pass
+
 
 if __name__ == '__main__':
     gg = GUI()
