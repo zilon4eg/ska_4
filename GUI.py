@@ -51,7 +51,8 @@ class GUI:
             ],
             [
                 PySimpleGUI.Text('Название листа в книге Excel: ', size=(23, 1)),
-                PySimpleGUI.InputText(key='sheet', size=(62, 1))
+                PySimpleGUI.InputText(key='sheet', size=(37, 1)),
+                PySimpleGUI.Checkbox('Выбрать активный лист', default=True, key='CHECKBOX')
             ],
             [
                 PySimpleGUI.Text('Путь к папке со сканами: ', size=(19, 1)),
@@ -95,7 +96,12 @@ class GUI:
                     self.save_settings({'base_registry_path': base_registry_path, 'base_scan_path': base_scan_path})
 
                 registry_path = values['file']
-                ws_name = values['sheet']
+
+                if not values['CHECKBOX']:
+                    ws_name = values['sheet']
+                else:
+                    ws_name = True
+
                 dir_scan = values['folder']
                 if os.path.exists(registry_path) and os.path.exists(dir_scan):
                     print(f'Доступность путей проверена.')
@@ -167,6 +173,8 @@ class GUI:
 
             if event in 'Ok':
                 hyperlink_color = values['color']
+                if hyperlink_color in [None, 'None']:
+                    hyperlink_color = '#0563c1'
                 self.save_settings({'hyperlink_color': hyperlink_color})
                 window.close()
                 break

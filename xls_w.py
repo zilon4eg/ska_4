@@ -10,8 +10,13 @@ class Excel:
 
         self.registry_path = registry_path
         self.dir_scan = dir_scan
-        self.ws_name = ws_name
         self.wb = xlwings.Book(self.registry_path)
+
+        if ws_name not in [True, None, 'None']:
+            self.ws_name = ws_name
+        else:
+            self.ws_name = self.wb.sheets.active.name
+
         print(f'Документ {self.registry_path} открыт.')
         if self.ws_name not in list(sheet.name for sheet in self.wb.sheets):
             print(f'Лист {self.ws_name} отсутствует в книге.')
@@ -28,8 +33,8 @@ class Excel:
         self.ws[f'H{position}'].add_hyperlink(f'{self.dir_scan}\\{link_name}', name)
         self.ws[f'H{position}'].font.name = self.font_name
         self.ws[f'H{position}'].font.size = self.font_size
-        if self.hyperlink_color != 'None':
-            self.ws[f'H{position}'].font.color = self.hyperlink_color
+        # if self.hyperlink_color != 'None':
+        self.ws[f'H{position}'].font.color = self.hyperlink_color
         self.ws[f'H{position}'].api.HorizontalAlignment = -4108
         self.borders_all(f'H{position}')
 
@@ -42,8 +47,8 @@ class Excel:
 
     @staticmethod
     def hex_to_rgb(hex_color):
-        if hex_color == 'None':
-            return tuple([5, 99, 193])
+        # if hex_color == 'None':
+        #     return tuple([5, 99, 193])
         h = hex_color.lstrip('#')
         return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
