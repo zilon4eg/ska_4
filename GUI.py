@@ -69,7 +69,7 @@ class GUI:
             ]
         ]
 
-        window_main = PySimpleGUI.Window('Hyperlinks creator v2.4.2', layout)
+        window_main = PySimpleGUI.Window('Hyperlinks creator v2.4.3', layout)
 
         while True:  # The Event Loop
             settings = self.load_settings()
@@ -124,13 +124,13 @@ class GUI:
         font_size = int(settings['font_size'])
 
         layout = [
-            [PySimpleGUI.Combo(font_list, default_value=font_name, key='drop-down')],
-            [PySimpleGUI.Spin([sz for sz in range(10, 21)], font=('Helvetica 20'), initial_value=font_size,
+            [PySimpleGUI.Combo(font_list, default_value=font_name, key='drop-down', enable_events=True)],
+            [PySimpleGUI.Spin([sz for sz in range(10, 21)], font='Arial 20', initial_value=font_size,
                               change_submits=True,
                               key='spin'),
              PySimpleGUI.Slider(range=(10, 20), orientation='h', size=(10, 25),
-                                change_submits=True, key='slider', font=('Helvetica 20'), default_value=font_size),
-             PySimpleGUI.Text("Ab", size=(2, 1), font="Helvetica " + str(font_size), key='text')],
+                                change_submits=True, key='slider', font=f'{font_name.replace(" ", "")} 20', default_value=font_size),
+             PySimpleGUI.Text("Ab", size=(2, 1), font=f'{font_name.replace(" ", "")} {str(font_size)}', key='text')],
             [
                 PySimpleGUI.Submit(button_text='Ok'),
                 PySimpleGUI.Cancel(button_text='Cancel')
@@ -140,8 +140,12 @@ class GUI:
         # sz = font_size
         window = PySimpleGUI.Window("Font size selector", layout, grab_anywhere=False)
         # Event Loop
+
         while True:
             event, values = window.read()
+
+            window['text'].update(font=f'{values["drop-down"].replace(" ", "")} {str(font_size)}')
+
             if event in (PySimpleGUI.WIN_CLOSED, 'Cancel'):
                 window.close()
                 break
@@ -150,7 +154,7 @@ class GUI:
             sz = sz_spin if sz_spin != font_size else sz_slider
             if sz != font_size:
                 font_size = sz
-                font = "Helvetica " + str(font_size)
+                font = f'{values["drop-down"].replace(" ", "")} {str(font_size)}'
                 window['text'].update(font=font)
                 window['slider'].update(sz)
                 window['spin'].update(sz)
