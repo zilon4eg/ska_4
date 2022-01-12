@@ -69,7 +69,7 @@ class GUI:
             ]
         ]
 
-        window_main = PySimpleGUI.Window('Hyperlinks creator', layout)
+        window_main = PySimpleGUI.Window('Hyperlinks creator v2.4.1', layout)
 
         while True:  # The Event Loop
             settings = self.load_settings()
@@ -192,7 +192,7 @@ class GUI:
             [PySimpleGUI.Text('Working...')],
             [PySimpleGUI.ProgressBar(size, orientation='h', size=(28, 20), key='PROGRESSBAR')]
         ]
-        return PySimpleGUI.Window('Create hyperlinks', layout)
+        return PySimpleGUI.Window('Create hyperlinks', layout, disable_minimize=True, keep_on_top=True)
 
 
 if __name__ == '__main__':

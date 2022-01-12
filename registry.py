@@ -42,16 +42,15 @@ def body(registry_path, dir_scan, ws_name, settings):
 
     print('Формирование гиперссылок...')
 
-    # GUI.progress_bar_menu(len(files_a), xxl, files_a, files_dir, file_pref)
     pg_size = len(files_a)
     pg_window = GUI.progress_bar(pg_size)
-    pg = pg_window['PROGRESSBAR']
     pg_window.read(timeout=10)
+    pg_window.TKroot.focus_force()
 
     for position, file_a in enumerate(files_a, 3):
         file_a_clear = file_a.replace(r'/', r'-').strip().split()[0]
 
-        pg.update_bar(position + 1)
+        pg_window['PROGRESSBAR'].update_bar(position + 1)
 
         for file_dir in files_dir:
             if not file_dir.isdigit():
