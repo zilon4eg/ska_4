@@ -17,6 +17,7 @@ def miss_files(list1, list2):
 
 def body(registry_path, dir_scan, ws_name, settings):
     xxl = Excel(registry_path, dir_scan, ws_name, settings)
+    registry_path = xxl.get_path_active_book() if registry_path in '' else registry_path
 
     if registry_path[registry_path.rfind('\\') + 1:registry_path.rfind('.')].lower().count('исходящ') > 0:
         file_pref = 'исх.№'
@@ -42,8 +43,15 @@ def body(registry_path, dir_scan, ws_name, settings):
     print('Формирование гиперссылок...')
 
     # GUI.progress_bar_menu(len(files_a), xxl, files_a, files_dir, file_pref)
+    pg_size = len(files_a)
+    pg_window = GUI.progress_bar(pg_size)
+    pg = pg_window['PROGRESSBAR']
+    pg_window.read(timeout=10)
+
     for position, file_a in enumerate(files_a, 3):
         file_a_clear = file_a.replace(r'/', r'-').strip().split()[0]
+
+        pg.update_bar(position + 1)
 
         for file_dir in files_dir:
             if not file_dir.isdigit():
@@ -51,11 +59,12 @@ def body(registry_path, dir_scan, ws_name, settings):
                 file_dir_clear = file_dir[file_dir.rfind('№') + 1:file_dir.rfind('.')].lower()
 
                 if file_dir_clear == file_a_clear:
-                    name = f'{file_pref.capitalize()}{file_a_clear}{file_type}'
+                    name = f'{file_pref.capitalize()}{file_a_clear}'
                     link_name = f'{file_pref.upper()}{file_a_clear}{file_type}'
                     if not xxl.check_hyperlink(name, link_name, position):
                         xxl.create_hyperlinks(name, link_name, position)
 
+    pg_window.close()
     print('Гиперссылки сформированы.')
     # xxl.save()
     # print(f'Файл {registry_path} сохранен')

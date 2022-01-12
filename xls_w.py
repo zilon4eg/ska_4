@@ -7,16 +7,19 @@ class Excel:
         self.font_size = round(int(settings['font_size']), 1)
         self.font_name = settings['font_name']
         self.hyperlink_color = settings['hyperlink_color']
-        self.registry_path = registry_path
         self.dir_scan = dir_scan
-        self.wb = xlwings.Book(self.registry_path)
+
+        if registry_path not in [True, None, 'None', '']:
+            self.wb = xlwings.Book(registry_path)
+        else:
+            self.wb = xlwings.books.active
 
         if ws_name not in [True, None, 'None', '']:
             self.ws_name = ws_name
         else:
             self.ws_name = self.wb.sheets.active.name
 
-        print(f'Документ {self.registry_path} открыт.')
+        print(f'Документ {self.wb.name} открыт.')
         if self.ws_name not in list(sheet.name for sheet in self.wb.sheets):
             print(f'Лист {self.ws_name} отсутствует в книге.')
         self.ws = self.wb.sheets[self.ws_name]
@@ -27,6 +30,9 @@ class Excel:
         list_column = list(str(i) for i in list_column if i is not None)
         print('Получен список регистрационных номеров из столбца "А".')
         return list_column
+
+    def get_path_active_book(self):
+        return self.wb.fullname
 
     def create_hyperlinks(self, name, link_name, position):
         self.ws[f'H{position}'].add_hyperlink(f'{self.dir_scan}\\{link_name}', name)
@@ -41,8 +47,8 @@ class Excel:
         for i in range(7, 13):
             self.ws[cell].api.Borders(i).LineStyle = 1
 
-    def save(self):
-        self.wb.save(self.registry_path)
+    # def save(self):
+    #     self.wb.save(self.registry_path)
 
     @staticmethod
     def hex_to_rgb(hex_color):

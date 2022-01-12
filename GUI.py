@@ -33,6 +33,7 @@ class GUI:
 
     def main_menu(self):
         settings = self.load_settings()
+
         # ------ Menu Definition ------ #
         menu_def = [
             ['File', ['Exit']],
@@ -51,8 +52,8 @@ class GUI:
             ],
             [
                 PySimpleGUI.Text('Название листа в книге Excel: ', size=(23, 1)),
-                PySimpleGUI.InputText(key='sheet', size=(37, 1)),
-                PySimpleGUI.Checkbox('Выбрать активный лист', default=True, key='CHECKBOX')
+                PySimpleGUI.InputText(key='SHEET', size=(32, 1), disabled=True),
+                PySimpleGUI.Checkbox('Использовать активный лист', default=True, key='WS_CHECKBOX', enable_events=True)
             ],
             [
                 PySimpleGUI.Text('Путь к папке со сканами: ', size=(19, 1)),
@@ -74,6 +75,11 @@ class GUI:
             settings = self.load_settings()
             event, values = window_main.read()
             # print(event, values) #debug
+
+            if values['WS_CHECKBOX'] is True:
+                window_main['SHEET'].update('', disabled=True)
+            else:
+                window_main['SHEET'].update(disabled=False)
 
             if event in (None, 'Exit', 'Cancel'):
                 break
@@ -97,16 +103,16 @@ class GUI:
 
                 registry_path = values['file']
 
-                if not values['CHECKBOX']:
-                    ws_name = values['sheet']
+                if not values['WS_CHECKBOX']:
+                    ws_name = values['SHEET']
                 else:
                     ws_name = True
 
                 dir_scan = values['folder']
-                if os.path.exists(registry_path) and os.path.exists(dir_scan):
-                    print(f'Доступность путей проверена.')
+                if os.path.exists(dir_scan):
+                    print(f'Доступность каталога сканов проверена.')
                 else:
-                    print(f'Один из путей недоступен или не существует.')
+                    print(f'Каталог сканов недоступен.')
                     break
 
                 registry.body(registry_path, dir_scan, ws_name, settings)
@@ -180,47 +186,13 @@ class GUI:
                 break
 
     @staticmethod
-    def progress_bar_menu(size, xxl, files_a, files_dir, file_pref):
+    def progress_bar(size):
         # layout the window
-        layout = [[PySimpleGUI.Text('Working...')],
-                  [PySimpleGUI.ProgressBar(size, orientation='h', size=(20, 20), key='progressbar')],
-                  [PySimpleGUI.Cancel()]]
-
-        # create the window`
-        window = PySimpleGUI.Window('Create hyperlinks', layout)
-        progress_bar = window['progressbar']
-        # loop that would normally do something useful
-
-
-        for position, file_a in enumerate(files_a, 3):
-            file_a_clear = file_a.replace(r'/', r'-').strip().split()[0]
-
-            for file_dir in files_dir:
-                if not file_dir.isdigit():
-                    file_type = file_dir[file_dir.rfind('.'):].lower()
-                    file_dir_clear = file_dir[file_dir.rfind('№') + 1:file_dir.rfind('.')].lower()
-
-                    if file_dir_clear == file_a_clear:
-                        name = f'{file_pref.capitalize()}{file_a_clear}{file_type}'
-                        link_name = f'{file_pref.upper()}{file_a_clear}{file_type}'
-                        if not xxl.check_hyperlink(name, link_name, position):
-                            xxl.create_hyperlinks(name, link_name, position)
-
-            event, values = window.read(timeout=1)
-            if event == 'Cancel' or event == PySimpleGUI.WIN_CLOSED:
-                break
-            progress_bar.UpdateBar(position - 2 + 1)
-
-        # for i in range(size):
-        #     # check to see if the cancel button was clicked and exit loop if clicked
-        #     event, values = window.read(timeout=10)
-        #     if event == 'Cancel' or event == PySimpleGUI.WIN_CLOSED:
-        #         break
-        #     # update bar with loop value +1 so that bar eventually reaches the maximum
-        #     progress_bar.UpdateBar(i + 1)
-        # # done with loop... need to destroy the window as it's still open
-        window.close()
-        pass
+        layout = [
+            [PySimpleGUI.Text('Working...')],
+            [PySimpleGUI.ProgressBar(size, orientation='h', size=(28, 20), key='PROGRESSBAR')]
+        ]
+        return PySimpleGUI.Window('Create hyperlinks', layout)
 
 
 if __name__ == '__main__':
