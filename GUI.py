@@ -69,7 +69,7 @@ class GUI:
             ]
         ]
 
-        window_main = PySimpleGUI.Window('Hyperlinks creator v2.4.1', layout)
+        window_main = PySimpleGUI.Window('Hyperlinks creator v2.4.2', layout)
 
         while True:  # The Event Loop
             settings = self.load_settings()
@@ -91,7 +91,7 @@ class GUI:
 
             elif event in 'Hyperlink':
                 window_main.hide()
-                self.color_chooser_menu()
+                self.color_chooser_menu(settings)
                 window_main.UnHide()
 
             elif event in 'Start':
@@ -160,26 +160,42 @@ class GUI:
                 window.close()
                 break
 
-    def color_chooser_menu(self):
+    def color_chooser_menu(self, settings):
+        img_color = settings['hyperlink_color']
+
         layout = [
-            [PySimpleGUI.Text('Код цвета:'), PySimpleGUI.Input(key='color', readonly=True, size=(7, 1)), PySimpleGUI.ColorChooserButton(button_text='Choose color', key='color')],
+            [
+                PySimpleGUI.Text('Код цвета:'),
+                PySimpleGUI.Input(key='COLOR', readonly=True, size=(7, 1), enable_events=True),
+                PySimpleGUI.ColorChooserButton(button_text='Choose color', key='COLOR')
+            ],
             [
                 PySimpleGUI.Submit(button_text='Ok'),
                 PySimpleGUI.Cancel(button_text='Cancel'),
+                PySimpleGUI.Text(' Пример цвета:'),
+                PySimpleGUI.Button(button_text='', button_color=img_color, size=(2, 1), disabled=True, key='IMG_COLOR'),
             ],
         ]
 
         window = PySimpleGUI.Window("Font size selector", layout, grab_anywhere=False)
         # Event Loop
+
         while True:
             event, values = window.read()
+
+            if values['COLOR'] in [None, 'None', '']:
+                img_color = '#0563c1'
+            else:
+                img_color = values['COLOR']
+            window['IMG_COLOR'].update(button_color=img_color)
+
             if event in (PySimpleGUI.WIN_CLOSED, 'Cancel'):
                 window.close()
                 break
 
             if event in 'Ok':
-                hyperlink_color = values['color']
-                if hyperlink_color in [None, 'None']:
+                hyperlink_color = values['COLOR']
+                if hyperlink_color in [None, 'None', '']:
                     hyperlink_color = '#0563c1'
                 self.save_settings({'hyperlink_color': hyperlink_color})
                 window.close()
