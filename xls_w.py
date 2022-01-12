@@ -47,13 +47,8 @@ class Excel:
         for i in range(7, 13):
             self.ws[cell].api.Borders(i).LineStyle = 1
 
-    # def save(self):
-    #     self.wb.save(self.registry_path)
-
     @staticmethod
     def hex_to_rgb(hex_color):
-        # if hex_color == 'None':
-        #     return tuple([5, 99, 193])
         h = hex_color.lstrip('#')
         return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
@@ -62,12 +57,6 @@ class Excel:
             hyperlink = self.ws[f'H{position}'].hyperlink
         except:
             hyperlink = None
-
-        # print(name, self.ws[f'H{position}'].value)
-        # print(f'{self.dir_scan}\\{link_name}'.replace('\\', '/'), hyperlink.replace('\\', '/'))
-        # print(self.font_name, self.ws[f'H{position}'].font.name)
-        # print(self.font_size, self.ws[f'H{position}'].font.size)
-        # print(Excel.hex_to_rgb(self.hyperlink_color), self.ws[f'H{position}'].font.color)
 
         if (
                 name == self.ws[f'H{position}'].value
@@ -79,8 +68,6 @@ class Excel:
             return True
         else:
             return False
-
-        # time.sleep(10)
 
 
 if __name__ == '__main__':
