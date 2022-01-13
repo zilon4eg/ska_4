@@ -94,7 +94,7 @@ class GUI:
             ]
         ]
 
-        window_main = PySimpleGUI.Window('Hyperlinks creator v2.4.4', layout)
+        window_main = PySimpleGUI.Window('Hyperlinks creator v2.5', layout)
 
         while True:  # The Event Loop
             settings = self.load_settings()
