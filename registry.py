@@ -1,6 +1,7 @@
 from xls_w import Excel
 import os
 from GUI import GUI
+from natsort import natsorted, ns
 
 
 def light_files_in_dir(list_files):
@@ -10,10 +11,8 @@ def light_files_in_dir(list_files):
 
 
 def miss_files(list1, list2):
-    # miss_list = list(file for file in list1 if file not in list2)
     miss_list = list(set(list1) - set(list2))
-    miss_list.sort()
-    return miss_list
+    return natsorted(miss_list, alg=ns.IGNORECASE)  # or alg=ns.IC
 
 
 def body(registry_path, dir_scan, ws_name, settings):
@@ -37,7 +36,6 @@ def body(registry_path, dir_scan, ws_name, settings):
 
     files_dir_clear = light_files_in_dir(files_dir)
     miss_list = miss_files(files_a_sort, files_dir_clear)
-    miss_list.sort()
     for miss in miss_list:
         print(f'Не найдено сопоставление регистрационному номеру {miss} среди файлов.')
 
