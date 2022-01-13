@@ -1,5 +1,4 @@
 import xlwings
-import time
 
 
 class Excel:
@@ -38,9 +37,9 @@ class Excel:
         self.ws[f'H{position}'].add_hyperlink(f'{self.dir_scan}\\{link_name}', name)
         self.ws[f'H{position}'].font.name = self.font_name
         self.ws[f'H{position}'].font.size = self.font_size
-        # if self.hyperlink_color != 'None':
         self.ws[f'H{position}'].font.color = self.hyperlink_color
         self.ws[f'H{position}'].api.HorizontalAlignment = -4108
+        self.ws[f'H{position}'].api.VerticalAlignment = -4108
         self.borders_all(f'H{position}')
 
     def borders_all(self, cell):

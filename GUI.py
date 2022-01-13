@@ -1,6 +1,7 @@
 import os
 import PySimpleGUI
 import registry
+from pathlib import Path
 
 
 class GUI:
@@ -13,23 +14,47 @@ class GUI:
         """
         position = os.path.abspath(__file__).rfind('\\')
         self.config_path = f'{os.path.abspath(__file__)[:position]}\\config.ini'
+        self.local_dir_path = f'{str(Path.home())}\\HyperlinkCreator'
+        self.local_file_path = f'{str(Path.home())}\\HyperlinkCreator\\config.ini'
+        self.create_local_settings()
+
+    def create_local_settings(self):
+        if not os.path.exists(self.local_dir_path):
+            os.mkdir(self.local_dir_path)
+        if not os.path.exists(self.local_file_path) and os.path.exists(self.local_dir_path):
+            settings = self.load_settings()
+            with open(self.local_file_path, 'w', encoding='cp1251') as file:  # encoding='utf-8'
+                for line in settings:
+                    file.writelines(f'{line}={settings[line]}\n')
 
     def load_settings(self):
         settings = dict()
-        with open(self.config_path, 'r', encoding='cp1251') as file:
-            for line in file:
-                line = line.strip().split('=')
-                settings.update({line[0]: line[1]})
+        if os.path.exists(self.local_file_path):
+            with open(self.local_file_path, 'r', encoding='cp1251') as file:  # encoding='utf-8'
+                for line in file:
+                    line = line.strip().split('=')
+                    settings.update({line[0]: line[1]})
+        else:
+            with open(self.config_path, 'r', encoding='cp1251') as file:  # encoding='utf-8'
+                for line in file:
+                    line = line.strip().split('=')
+                    settings.update({line[0]: line[1]})
         return settings
 
     def save_settings(self, new_settings):
         settings = self.load_settings()
-        for setting in new_settings:
-            settings.update({setting: new_settings[setting]})
-            # print(settings)
-        with open(self.config_path, 'w', encoding='cp1251') as file:
-            for line in settings:
-                file.writelines(f'{line}={settings[line]}\n')
+        if os.path.exists(self.local_file_path):
+            for setting in new_settings:
+                settings.update({setting: new_settings[setting]})
+            with open(self.local_file_path, 'w', encoding='cp1251') as file:  # encoding='utf-8'
+                for line in settings:
+                    file.writelines(f'{line}={settings[line]}\n')
+        else:
+            for setting in new_settings:
+                settings.update({setting: new_settings[setting]})
+            with open(self.config_path, 'w', encoding='cp1251') as file:  # encoding='utf-8'
+                for line in settings:
+                    file.writelines(f'{line}={settings[line]}\n')
 
     def main_menu(self):
         settings = self.load_settings()
@@ -69,22 +94,22 @@ class GUI:
             ]
         ]
 
-        window_main = PySimpleGUI.Window('Hyperlinks creator v2.4.3', layout)
+        window_main = PySimpleGUI.Window('Hyperlinks creator v2.4.4', layout)
 
         while True:  # The Event Loop
             settings = self.load_settings()
             event, values = window_main.read()
             # print(event, values) #debug
 
+            if event in (None, 'Exit', 'Cancel', PySimpleGUI.WINDOW_CLOSED):
+                break
+
             if values['WS_CHECKBOX'] is True:
                 window_main['SHEET'].update('', disabled=True)
             else:
                 window_main['SHEET'].update(disabled=False)
 
-            if event in (None, 'Exit', 'Cancel'):
-                break
-
-            elif event in 'Font':
+            if event in 'Font':
                 window_main.hide()
                 self.font_menu(settings)
                 window_main.UnHide()
@@ -96,10 +121,13 @@ class GUI:
 
             elif event in 'Start':
                 base_registry_path = values['file']  # r'\\fs\SHARE\Documents\OTDEL-SECRETARY\Регистрация документов\Реестры'
-                base_scan_path = values['folder']  # r'\\fs\SHARE\Documents\OTDEL-SECRETARY\Регистрация документов'
-                if base_registry_path and base_scan_path:
+                if base_registry_path:
                     base_registry_path = base_registry_path[:base_registry_path.rfind('/')]
-                    self.save_settings({'base_registry_path': base_registry_path, 'base_scan_path': base_scan_path})
+                    self.save_settings({'base_registry_path': base_registry_path})
+
+                base_scan_path = values['folder']  # r'\\fs\SHARE\Documents\OTDEL-SECRETARY\Регистрация документов'
+                if base_scan_path:
+                    self.save_settings({'base_scan_path': base_scan_path})
 
                 registry_path = values['file']
 
@@ -217,6 +245,5 @@ class GUI:
 
 if __name__ == '__main__':
     gg = GUI()
-    # gg.progress_bar_menu(50)
     gg.main_menu()
     pass
