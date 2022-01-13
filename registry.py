@@ -12,6 +12,7 @@ def light_files_in_dir(list_files):
 def miss_files(list1, list2):
     # miss_list = list(file for file in list1 if file not in list2)
     miss_list = list(set(list1) - set(list2))
+    miss_list.sort()
     return miss_list
 
 
@@ -65,8 +66,6 @@ def body(registry_path, dir_scan, ws_name, settings):
 
     pg_window.close()
     print('Гиперссылки сформированы.')
-    # xxl.save()
-    # print(f'Файл {registry_path} сохранен')
     print('Complete...' + '\n' * 1)
 
 
