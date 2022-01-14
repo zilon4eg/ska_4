@@ -6,7 +6,7 @@ from config import Config
 
 class GUI:
     def __init__(self):
-        self.version = 'v2.6.1'
+        self.version = 'v2.6.2'
         self.config = Config()
 
     def main_menu(self):

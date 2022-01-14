@@ -36,9 +36,10 @@ class Config:
 
     def create_local_config(self):
         is_dir_exist = os.path.exists(self.local_dir_config_path)
-        is_file_exist = os.path.exists(self.local_file_config_path)
         if not is_dir_exist:
             os.mkdir(self.local_dir_config_path)
+        is_dir_exist = os.path.exists(self.local_dir_config_path)
+        is_file_exist = os.path.exists(self.local_file_config_path)
         if is_dir_exist and not is_file_exist:
             with open(self.local_file_config_path, 'w', encoding='cp1251') as file:
                 json.dump(self.default_config, file, sort_keys=True, indent=2)
@@ -72,3 +73,9 @@ class Config:
 
 if __name__ == '__main__':
     pass
+    # local_dir_config_path = f'{str(Path.home())}\\HyperlinkCreator'
+    # local_file_config_path = f'{str(Path.home())}\\HyperlinkCreator\\config.json'
+    # is_dir_exist = os.path.exists(local_dir_config_path)
+    # is_file_exist = os.path.exists(local_file_config_path)
+    # print(is_dir_exist and not is_file_exist)
+    #
