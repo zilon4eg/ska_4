@@ -18,7 +18,7 @@ default_config = {
   "hyperlink": {
     "color": "#0563c1",
     "font_name": "Times New Roman",
-    "font_size": "12"
+    "font_size": 12
   },
   "path": {
     "base_registry_path": "",
@@ -30,7 +30,7 @@ default_config = {
 class Config:
     def __init__(self):
         self.local_dir_config_path = f'{str(Path.home())}\\HyperlinkCreator'
-        self.local_file_config_path = f'{str(Path.home())}\\HyperlinkCreator\\config.ini'
+        self.local_file_config_path = f'{str(Path.home())}\\HyperlinkCreator\\config.json'
         self.default_config = default_config
         self.create_local_config()
 
@@ -40,14 +40,14 @@ class Config:
         if not is_dir_exist:
             os.mkdir(self.local_dir_config_path)
         if is_dir_exist and not is_file_exist:
-            with open('sw_templates.json', 'w', encoding='cp1251') as file:
+            with open(self.local_file_config_path, 'w', encoding='cp1251') as file:
                 json.dump(self.default_config, file, sort_keys=True, indent=2)
 
     def save(self, settings):
         is_file_exist = os.path.exists(self.local_file_config_path)
         config = self.load()
         if is_file_exist:
-            with open(self.local_file_config_path, 'w') as file:
+            with open(self.local_file_config_path, 'w', encoding='cp1251') as file:
                 for key in list(settings):
                     config[key].update(settings[key])
                 json.dump(config, file, sort_keys=True, indent=2)
@@ -68,3 +68,7 @@ class Config:
         if is_file_exist:
             os.remove(self.local_file_config_path)
         self.create_local_config()
+
+
+if __name__ == '__main__':
+    pass

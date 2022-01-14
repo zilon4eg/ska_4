@@ -32,7 +32,7 @@ def body(registry_path, dir_scan, ws_name, settings):
     files_a = xxl.get_column()
     files_a_sort = list(map(lambda x: str(x).replace(r'/', r'-').strip().split()[0], files_a))
     files_dir = os.listdir(path=dir_scan)
-    print(f'Получен список файов в папке {dir_scan}.')
+    print(f'Получен список файлов в папке {dir_scan}.')
 
     files_dir_clear = light_files_in_dir(files_dir)
     miss_list = miss_files(files_a_sort, files_dir_clear)
@@ -43,7 +43,8 @@ def body(registry_path, dir_scan, ws_name, settings):
 
     pg_size = len(files_a)
     pg_window = GUI.progress_bar(pg_size)
-    pg_window.read(timeout=10).TKroot.focus_force()
+    pg_window.read(timeout=10)
+    pg_window.TKroot.focus_force()
 
     for position, file_a in enumerate(files_a, 3):
         file_a_clear = file_a.replace(r'/', r'-').strip().split()[0]
@@ -68,5 +69,3 @@ def body(registry_path, dir_scan, ws_name, settings):
 
 if __name__ == '__main__':
     pass
-    print(os.path.abspath(__file__)[:os.path.abspath(__file__).rfind('\\')])
-    print(os.path.abspath(os.curdir))

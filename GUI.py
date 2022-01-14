@@ -1,54 +1,17 @@
 import os
 import PySimpleGUI
 import registry
-from pathlib import Path
 from config import Config
 
 
 class GUI:
     def __init__(self):
-        """
-        Получить текущую директорию, где запущен скрипт
-        dir = os.path.abspath(os.curdir)
-        Получить текущую директорию, где расположен скрипт
-        os.path.abspath(__file__)
-        """
-        position = os.path.abspath(__file__).rfind('\\')
-        self.default_file_path = f'{os.path.abspath(__file__)[:position]}\\config.ini'
-        self.local_dir_path = f'{str(Path.home())}\\HyperlinkCreator'
-        self.local_file_path = f'{str(Path.home())}\\HyperlinkCreator\\config.ini'
-        self.create_local_settings()
-
-    def create_local_settings(self):
-        if not os.path.exists(self.local_dir_path):
-            os.mkdir(self.local_dir_path)
-        if not os.path.exists(self.local_file_path) and os.path.exists(self.local_dir_path):
-            settings = self.load_settings()
-            with open(self.local_file_path, 'w', encoding='cp1251') as file:  # encoding='utf-8'
-                for line in settings:
-                    file.writelines(f'{line}={settings[line]}\n')
-
-    def config_path(self):
-        return self.local_file_path if os.path.exists(self.local_file_path) else self.default_file_path
-
-    def load_settings(self):
-        settings = dict()
-        with open(self.config_path(), 'r', encoding='cp1251') as file:  # encoding='utf-8'
-            for line in file:
-                line = line.strip().split('=')
-                settings.update({line[0]: line[1]})
-        return settings
-
-    def save_settings(self, new_settings):
-        settings = self.load_settings()
-        for setting in new_settings:
-            settings.update({setting: new_settings[setting]})
-        with open(self.config_path(), 'w', encoding='cp1251') as file:  # encoding='utf-8'
-            for line in settings:
-                file.writelines(f'{line}={settings[line]}\n')
+        self.config = Config()
 
     def main_menu(self):
-        settings = self.load_settings()
+        settings = self.config.load()
+        base_registry_path = settings['path']['base_registry_path']
+        base_scan_path = settings['path']['base_scan_path']
 
         # ------ Menu Definition ------ #
         menu_def = [
@@ -64,7 +27,7 @@ class GUI:
             [
                 PySimpleGUI.Text('Путь к файлу реестра: ', size=(17, 1)),
                 PySimpleGUI.InputText(key='file', size=(58, 1)),
-                PySimpleGUI.FileBrowse(target='file', initial_folder=settings['base_registry_path'], size=(7, 1))
+                PySimpleGUI.FileBrowse(target='file', initial_folder=base_registry_path, size=(7, 1))
             ],
             [
                 PySimpleGUI.Text('Название листа в книге Excel: ', size=(23, 1)),
@@ -74,7 +37,7 @@ class GUI:
             [
                 PySimpleGUI.Text('Путь к папке со сканами: ', size=(19, 1)),
                 PySimpleGUI.InputText(key='folder', size=(56, 1)),
-                PySimpleGUI.FolderBrowse(target='folder', initial_folder=settings['base_scan_path'], size=(7, 1))
+                PySimpleGUI.FolderBrowse(target='folder', initial_folder=base_scan_path, size=(7, 1))
             ],
             [
                 PySimpleGUI.Output(size=(88, 20))
@@ -85,10 +48,9 @@ class GUI:
             ]
         ]
 
-        window_main = PySimpleGUI.Window('Hyperlinks creator v2.5.1', layout)
+        window_main = PySimpleGUI.Window('Hyperlinks creator v2.6', layout)
 
         while True:  # The Event Loop
-            settings = self.load_settings()
             event, values = window_main.read()
             # print(event, values) #debug
 
@@ -102,23 +64,23 @@ class GUI:
 
             if event in 'Font':
                 window_main.hide()
-                self.font_menu(settings)
+                self.font_menu()
                 window_main.UnHide()
 
             elif event in 'Hyperlink':
                 window_main.hide()
-                self.color_chooser_menu(settings)
+                self.color_chooser_menu()
                 window_main.UnHide()
 
             elif event in 'Start':
-                base_registry_path = values['file']  # r'\\fs\SHARE\Documents\OTDEL-SECRETARY\Регистрация документов\Реестры'
+                base_registry_path = values['file']
                 if base_registry_path:
                     base_registry_path = base_registry_path[:base_registry_path.rfind('/')]
-                    self.save_settings({'base_registry_path': base_registry_path})
+                    self.config.save({'path': {'base_registry_path': base_registry_path}})
 
-                base_scan_path = values['folder']  # r'\\fs\SHARE\Documents\OTDEL-SECRETARY\Регистрация документов'
+                base_scan_path = values['folder']
                 if base_scan_path:
-                    self.save_settings({'base_scan_path': base_scan_path})
+                    self.config.save({'path': {'base_scan_path': base_scan_path}})
 
                 registry_path = values['file']
 
@@ -134,29 +96,31 @@ class GUI:
                     print(f'Каталог сканов недоступен.')
                     break
 
-                registry.body(registry_path, dir_scan, ws_name, settings)
+                registry.body(registry_path, dir_scan, ws_name, self.config.load())
 
-    def font_menu(self, settings):
-        # settings = self.load_settings()
-        font_list = settings['font_list'].split(',')
-        font_name = settings['font_name']
-        font_size = int(settings['font_size'])
+    def font_menu(self):
+        settings = self.config.load()
+        font_list = settings['font_list']
+        font_name = settings['hyperlink']['font_name']
+        font_size = settings['hyperlink']['font_size']
 
         layout = [
-            [PySimpleGUI.Combo(font_list, default_value=font_name, key='drop-down', enable_events=True)],
-            [PySimpleGUI.Spin([sz for sz in range(10, 21)], font='Arial 20', initial_value=font_size,
-                              change_submits=True,
-                              key='spin'),
-             PySimpleGUI.Slider(range=(10, 20), orientation='h', size=(10, 25),
-                                change_submits=True, key='slider', font=f'{font_name.replace(" ", "")} 20', default_value=font_size),
-             PySimpleGUI.Text("Ab", size=(2, 1), font=f'{font_name.replace(" ", "")} {str(font_size)}', key='text')],
+            [
+                PySimpleGUI.Combo(font_list, default_value=font_name, key='drop-down', enable_events=True)
+            ],
+            [
+                PySimpleGUI.Spin([sz for sz in range(10, 21)], font='Arial 20', initial_value=font_size,
+                                 change_submits=True, key='spin'),
+                PySimpleGUI.Slider(range=(10, 20), orientation='h', size=(10, 25), change_submits=True,
+                                   key='slider', font=f'{font_name.replace(" ", "")} 20', default_value=font_size),
+                PySimpleGUI.Text("Ab", size=(2, 1), font=f'{font_name.replace(" ", "")} {str(font_size)}', key='text')
+            ],
             [
                 PySimpleGUI.Submit(button_text='Ok'),
                 PySimpleGUI.Cancel(button_text='Cancel')
             ]
         ]
 
-        # sz = font_size
         window = PySimpleGUI.Window("Font size selector", layout, grab_anywhere=False)
         # Event Loop
 
@@ -179,12 +143,20 @@ class GUI:
                 window['spin'].update(sz)
 
             if event in 'Ok':
-                self.save_settings({'font_size': font_size, 'font_name': values['drop-down']})
+                self.config.save(
+                    {
+                        'hyperlink': {
+                            'font_size': int(font_size),
+                            'font_name': values['drop-down']
+                        }
+                    }
+                )
                 window.close()
                 break
 
-    def color_chooser_menu(self, settings):
-        img_color = settings['hyperlink_color']
+    def color_chooser_menu(self):
+        settings = self.config.load()
+        img_color = settings['hyperlink']['color']
 
         layout = [
             [
@@ -220,7 +192,7 @@ class GUI:
                 hyperlink_color = values['COLOR']
                 if hyperlink_color in [None, 'None', '']:
                     hyperlink_color = '#0563c1'
-                self.save_settings({'hyperlink_color': hyperlink_color})
+                self.config.save({'hyperlink': {'color': hyperlink_color}})
                 window.close()
                 break
 

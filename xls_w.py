@@ -3,9 +3,9 @@ import xlwings
 
 class Excel:
     def __init__(self, registry_path, dir_scan, ws_name, settings):
-        self.font_size = round(int(settings['font_size']), 1)
-        self.font_name = settings['font_name']
-        self.hyperlink_color = settings['hyperlink_color']
+        self.font_size = round(int(settings['hyperlink']['font_size']), 1)
+        self.font_name = settings['hyperlink']['font_name']
+        self.hyperlink_color = settings['hyperlink']['color']
         self.dir_scan = dir_scan
 
         if registry_path not in [True, None, 'None', '']:
@@ -25,7 +25,9 @@ class Excel:
         print(f'Выбран лист {self.ws_name}.')
 
     def get_column(self):
-        list_column = list(str(self.ws[f'A{i}'].value)[:str(self.ws[f'A{i}'].value).rfind('.') if '.' in str(self.ws[f"A{i}"].value) else None] for i in range(3, self.ws.range('A1').end('down').row + 1))
+        list_column = list(str(self.ws[f'A{i}'].value)[:str(self.ws[f'A{i}'].value).rfind('.')
+            if '.' in str(self.ws[f"A{i}"].value) else None] for i in range(3, self.ws.range('A1').end('down').row + 1))
+
         list_column = list(str(i) for i in list_column if i is not None)
         print('Получен список регистрационных номеров из столбца "А".')
         return list_column
@@ -54,7 +56,7 @@ class Excel:
     def check_hyperlink(self, name, link_name, position):
         try:
             hyperlink = self.ws[f'H{position}'].hyperlink
-        except:
+        except Exception:
             hyperlink = None
 
         if (
@@ -71,17 +73,3 @@ class Excel:
 
 if __name__ == '__main__':
     pass
-    import os
-    from GUI import GUI
-
-
-    registry_path = r'C:/Users/suhorukov.iv/Desktop/Реестр входящих 2020-2021.xlsx'
-    dir_scan = r'//fs.corp.skaarena.ru/SHARE/Documents/OTDEL-SECRETARY/Регистрация документов/ИСХОДЯЩИЕ 2021'
-    ws_name = '2021'
-
-    # position = os.path.abspath(__file__).rfind('\\')
-    # config_path = f'{os.path.abspath(__file__)[:position]}\\config.ini'
-    gg = GUI()
-    settings = gg.load_settings()
-    xxl = Excel(registry_path, dir_scan, ws_name, settings)
-    print(xxl.get_column())
