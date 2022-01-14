@@ -43,8 +43,7 @@ def body(registry_path, dir_scan, ws_name, settings):
 
     pg_size = len(files_a)
     pg_window = GUI.progress_bar(pg_size)
-    pg_window.read(timeout=10)
-    pg_window.TKroot.focus_force()
+    pg_window.read(timeout=10).TKroot.focus_force()
 
     for position, file_a in enumerate(files_a, 3):
         file_a_clear = file_a.replace(r'/', r'-').strip().split()[0]

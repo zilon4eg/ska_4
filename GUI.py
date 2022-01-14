@@ -2,6 +2,7 @@ import os
 import PySimpleGUI
 import registry
 from pathlib import Path
+from config import Config
 
 
 class GUI:
@@ -13,7 +14,7 @@ class GUI:
         os.path.abspath(__file__)
         """
         position = os.path.abspath(__file__).rfind('\\')
-        self.config_path = f'{os.path.abspath(__file__)[:position]}\\config.ini'
+        self.default_file_path = f'{os.path.abspath(__file__)[:position]}\\config.ini'
         self.local_dir_path = f'{str(Path.home())}\\HyperlinkCreator'
         self.local_file_path = f'{str(Path.home())}\\HyperlinkCreator\\config.ini'
         self.create_local_settings()
@@ -27,34 +28,24 @@ class GUI:
                 for line in settings:
                     file.writelines(f'{line}={settings[line]}\n')
 
+    def config_path(self):
+        return self.local_file_path if os.path.exists(self.local_file_path) else self.default_file_path
+
     def load_settings(self):
         settings = dict()
-        if os.path.exists(self.local_file_path):
-            with open(self.local_file_path, 'r', encoding='cp1251') as file:  # encoding='utf-8'
-                for line in file:
-                    line = line.strip().split('=')
-                    settings.update({line[0]: line[1]})
-        else:
-            with open(self.config_path, 'r', encoding='cp1251') as file:  # encoding='utf-8'
-                for line in file:
-                    line = line.strip().split('=')
-                    settings.update({line[0]: line[1]})
+        with open(self.config_path(), 'r', encoding='cp1251') as file:  # encoding='utf-8'
+            for line in file:
+                line = line.strip().split('=')
+                settings.update({line[0]: line[1]})
         return settings
 
     def save_settings(self, new_settings):
         settings = self.load_settings()
-        if os.path.exists(self.local_file_path):
-            for setting in new_settings:
-                settings.update({setting: new_settings[setting]})
-            with open(self.local_file_path, 'w', encoding='cp1251') as file:  # encoding='utf-8'
-                for line in settings:
-                    file.writelines(f'{line}={settings[line]}\n')
-        else:
-            for setting in new_settings:
-                settings.update({setting: new_settings[setting]})
-            with open(self.config_path, 'w', encoding='cp1251') as file:  # encoding='utf-8'
-                for line in settings:
-                    file.writelines(f'{line}={settings[line]}\n')
+        for setting in new_settings:
+            settings.update({setting: new_settings[setting]})
+        with open(self.config_path(), 'w', encoding='cp1251') as file:  # encoding='utf-8'
+            for line in settings:
+                file.writelines(f'{line}={settings[line]}\n')
 
     def main_menu(self):
         settings = self.load_settings()
