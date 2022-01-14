@@ -57,7 +57,7 @@ class Config:
     def load(self):
         is_file_exist = os.path.exists(self.local_file_config_path)
         if is_file_exist:
-            with open(self.local_file_config_path) as file:
+            with open(self.local_file_config_path, 'r', encoding='cp1251') as file:
                 local_config = json.load(file)
             return local_config
         else:

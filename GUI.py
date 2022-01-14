@@ -6,6 +6,7 @@ from config import Config
 
 class GUI:
     def __init__(self):
+        self.version = 'v2.6.1'
         self.config = Config()
 
     def main_menu(self):
@@ -48,7 +49,7 @@ class GUI:
             ]
         ]
 
-        window_main = PySimpleGUI.Window('Hyperlinks creator v2.6', layout)
+        window_main = PySimpleGUI.Window(f'Hyperlinks creator {self.version}', layout)
 
         while True:  # The Event Loop
             event, values = window_main.read()
