@@ -10,6 +10,7 @@ class GUI:
         self.config = Config()
 
     def main_menu(self):
+        PySimpleGUI.theme('LightBrown13')
         settings = self.config.load()
         base_registry_path = settings['path']['base_registry_path']
         base_scan_path = settings['path']['base_scan_path']
